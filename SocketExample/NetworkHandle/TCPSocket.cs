@@ -47,7 +47,7 @@ namespace LouieTool.NetworkHandle
 			}
 			catch (Exception ex)
 			{
-				Util.OutputDebugMessage(ex.StackTrace.ToString());
+				ExceptionCatched(ex);
 			}
 
 			return rtn;
@@ -66,10 +66,12 @@ namespace LouieTool.NetworkHandle
 				mThreadServer.Start();
 
 				rtn = true;
+				mFIsAlive = true;
+				SetShutdownState(false);
 			}
 			catch (Exception ex)
 			{
-				Util.OutputDebugMessage(ex.StackTrace.ToString());
+				ExceptionCatched(ex);
 			}
 
 			return rtn;
@@ -112,7 +114,7 @@ namespace LouieTool.NetworkHandle
 			}
 			catch (Exception ex)
 			{
-				Util.OutputDebugMessage(ex.StackTrace.ToString());
+				ExceptionCatched(ex);
 			}
 
 			return rtn;
@@ -130,10 +132,12 @@ namespace LouieTool.NetworkHandle
 				mThreadClient.Start();
 
 				rtn = true;
+				mFIsAlive = true;
+				SetShutdownState(false);
 			}
 			catch (Exception ex)
 			{
-				Util.OutputDebugMessage(ex.StackTrace.ToString());
+				ExceptionCatched(ex);
 			}
 
 			return rtn;
@@ -209,11 +213,19 @@ namespace LouieTool.NetworkHandle
 				mThreadClient.Join();
 				mClient.Close();
 			}
+
+			mFIsAlive = false;
 		}
 
-		public void IsAlive()
+		public bool IsAlive()
 		{
+			bool rtn = false;
 
+			mMutexShutdown.WaitOne();
+			rtn = mFIsAlive && !mFShutdown;
+			mMutexShutdown.ReleaseMutex();
+
+			return rtn;
 		}
 
 		public List<LinkInfo> GetLinkedClients()
@@ -287,7 +299,7 @@ namespace LouieTool.NetworkHandle
 									}
 									catch (Exception ex)
 									{
-										Util.OutputDebugMessage(ex.StackTrace.ToString());
+										ExceptionCatched(ex);
 									}
 								}
 								while (ns.DataAvailable);
@@ -295,7 +307,7 @@ namespace LouieTool.NetworkHandle
 						}
 						catch (Exception ex)
 						{
-							Util.OutputDebugMessage(ex.StackTrace.ToString());
+							ExceptionCatched(ex);
 						}
 					}
 
@@ -338,13 +350,13 @@ namespace LouieTool.NetworkHandle
 						}
 						catch (Exception ex)
 						{
-							Util.OutputDebugMessage(ex.StackTrace.ToString());
+							ExceptionCatched(ex);
 						}
 					}
 				}
 				catch (Exception ex)
 				{
-					Util.OutputDebugMessage(ex.StackTrace.ToString());
+					ExceptionCatched(ex);
 				}
 			}
 		}
@@ -352,6 +364,7 @@ namespace LouieTool.NetworkHandle
 		private void Clear()
 		{
 			mFShutdown = false;
+			mFIsAlive = false;
 			if (mServer != null)
 			{
 				mServer = null;
@@ -400,7 +413,7 @@ namespace LouieTool.NetworkHandle
 			}
 			catch (Exception ex)
 			{
-				Util.OutputDebugMessage(ex.StackTrace.ToString());
+				ExceptionCatched(ex);
 			}
 		}
 
@@ -424,7 +437,7 @@ namespace LouieTool.NetworkHandle
 				}
 				catch (Exception ex)
 				{
-					Util.OutputDebugMessage(ex.StackTrace.ToString());
+					ExceptionCatched(ex);
 				}
 			}
 		}

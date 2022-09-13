@@ -215,7 +215,12 @@ namespace LouieTool.NetworkHandle
 			*/
         }
 
+        protected virtual void ExceptionCatched(Exception Ex)
+        {
 
+        }
+
+        delegate void ExceptionCatchedCallback(Exception Ex);
         delegate void AsyncRecvDataCallback(DataPacket Packet);
 
     }

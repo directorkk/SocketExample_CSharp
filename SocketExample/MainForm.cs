@@ -69,6 +69,11 @@ namespace SocketExample
 
                 Console.WriteLine($"server accept new link -> {Connection.IP}:{Connection.Port}");
             }
+
+            protected override void ExceptionCatched(Exception Ex)
+            {
+                Util.OutputDebugMessage(Ex.ToString());
+            }
         }
         
 
